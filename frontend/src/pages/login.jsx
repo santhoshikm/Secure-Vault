@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { LockIcon, ShieldIcon } from "../icons";
+import API_BASE_URL from "../utils/api";
 import "../App.css";
 
 export default function Login() {
@@ -16,6 +17,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +43,7 @@ export default function Login() {
       setError("");
 
       const response = await fetch(
-        "http://localhost:8080/api/auth/login",
+        `${API_BASE_URL}/api/auth/login`,
         {
           method: "POST",
           headers: {
@@ -81,7 +83,8 @@ export default function Login() {
 
       login(
         data.token,
-        data.username || formData.username
+        data.username || formData.username,
+        rememberMe
       );
 
       navigate("/dashboard");
@@ -163,7 +166,12 @@ export default function Login() {
           </div>
 
           <label className="remember-checkbox">
-            <input type="checkbox" disabled={loading} />
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={loading}
+            />
             <span>Remember me for 30 days</span>
           </label>
 

@@ -6,6 +6,7 @@ import com.securevault.securevault_backend.service.SecurityMonitoringService;
 import com.securevault.securevault_backend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,9 @@ import com.securevault.securevault_backend.repository.UserRepository;
 @RestController
 @RequestMapping("/api/auth")
 public class UserController {
+
+    @Value("${app.frontend-url:http://localhost:5173}")
+    private String frontendUrl;
 
     @Autowired
     private UserService userService;
@@ -118,7 +122,7 @@ public class UserController {
 
         System.out.println("=======================================================================");
         System.out.println("PASSWORD RESET LINK (SIMULATED EMAIL):");
-        System.out.println("http://localhost:5173/reset-password?token=" + token);
+        System.out.println(frontendUrl + "/reset-password?token=" + token);
         System.out.println("=======================================================================");
 
         return ResponseEntity.ok(Map.of("message", "Password reset email sent."));

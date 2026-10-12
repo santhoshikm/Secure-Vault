@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { LockIcon, ShieldIcon } from "../icons";
+import API_BASE_URL from "../utils/api";
 import "../App.css";
 
 export default function ForgotPassword() {
@@ -21,7 +22,7 @@ export default function ForgotPassword() {
       setError("");
       setMessage("");
 
-      const response = await fetch("http://localhost:8080/api/auth/forgot-password", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),

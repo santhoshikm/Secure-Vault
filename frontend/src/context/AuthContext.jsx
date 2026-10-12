@@ -1,8 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import API_BASE_URL from '../utils/api';
 
 const AuthContext = createContext(null);
 
-const API = 'http://localhost:8080';
+const API = API_BASE_URL;
+
+// Helper: read from localStorage first, fall back to sessionStorage
+const readStorage = (key) =>
+  localStorage.getItem(key) || sessionStorage.getItem(key) || null;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -21,18 +26,19 @@ export function AuthProvider({ children }) {
         const data = await r.json();
         setUserRole(data.role || 'USER');
         setUserMfa(data.mfaEnabled || false);
-        // Cache in localStorage
-        localStorage.setItem('userRole', data.role || 'USER');
-        localStorage.setItem('userMfa', String(data.mfaEnabled || false));
+        // Cache in whichever storage has the token
+        const store = localStorage.getItem('token') ? localStorage : sessionStorage;
+        store.setItem('userRole', data.role || 'USER');
+        store.setItem('userMfa', String(data.mfaEnabled || false));
       }
     } catch {}
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const role = localStorage.getItem('userRole') || 'USER';
-    const mfa = localStorage.getItem('userMfa') === 'true';
+    const token = readStorage('token');
+    const username = readStorage('username');
+    const role = readStorage('userRole') || 'USER';
+    const mfa = readStorage('userMfa') === 'true';
     if (token && username) {
       setUser({ token, username });
       setUserRole(role);
@@ -43,18 +49,21 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, [fetchProfile]);
 
-  const login = (token, username) => {
-    localStorage.setItem('token', token);
-    localStorage.setItem('username', username);
+  // rememberMe = true  → localStorage (survives browser restart)
+  // rememberMe = false → sessionStorage (cleared when tab/browser closes)
+  const login = (token, username, rememberMe = false) => {
+    const store = rememberMe ? localStorage : sessionStorage;
+    store.setItem('token', token);
+    store.setItem('username', username);
     setUser({ token, username });
     fetchProfile(token);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userMfa');
+    ['token', 'username', 'userRole', 'userMfa'].forEach((k) => {
+      localStorage.removeItem(k);
+      sessionStorage.removeItem(k);
+    });
     setUser(null);
     setUserRole('USER');
     setUserMfa(false);

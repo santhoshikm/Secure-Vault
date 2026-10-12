@@ -28,11 +28,13 @@ public class AdminController {
 
     // ── USER MANAGEMENT ───────────────────────────────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/users/{id}/role")
     public ResponseEntity<?> updateUserRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
         try {
@@ -58,6 +60,7 @@ public class AdminController {
 
     // ── SYSTEM MONITORING ─────────────────────────────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/system-metrics")
     public ResponseEntity<Map<String, Object>> getSystemMetrics() {
         Map<String, Object> metrics = new LinkedHashMap<>();
@@ -81,6 +84,7 @@ public class AdminController {
 
     // ── COMPLIANCE REPORTS ────────────────────────────────────────────────────
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/compliance-report")
     public ResponseEntity<Map<String, Object>> getComplianceReport() {
         Map<String, Object> report = new LinkedHashMap<>();

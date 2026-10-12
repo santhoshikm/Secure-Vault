@@ -26,6 +26,9 @@ public class NotificationService {
     private final UserRepository userRepository;
     private final JavaMailSender mailSender;
 
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.username:}")
+    private String mailUsername;
+
     public NotificationService(NotificationRepository notificationRepository,
                                CredentialRepository credentialRepository,
                                UserRepository userRepository,
@@ -47,21 +50,26 @@ public class NotificationService {
             System.out.println("NOTIFICATION DISPATCH (" + channel + "): " + title);
             System.out.println("To User: " + username + " | Message: " + message);
             System.out.println("=======================================================================");
-            
-            try {
-                User user = userRepository.findByUsername(username).orElse(null);
-                if (user != null && user.getEmail() != null) {
-                    SimpleMailMessage mailMessage = new SimpleMailMessage();
-                    mailMessage.setTo(user.getEmail());
-                    mailMessage.setSubject("SecureVault Notification: " + title);
-                    mailMessage.setText(message + "\n\nBest Regards,\nSecureVault Team");
-                    mailSender.send(mailMessage);
-                    System.out.println("Email successfully sent to: " + user.getEmail());
-                } else {
-                    System.err.println("Failed to send email: User or email not found.");
+
+            boolean smtpConfigured = mailUsername != null && !mailUsername.isBlank();
+            if (smtpConfigured) {
+                try {
+                    User user = userRepository.findByUsername(username).orElse(null);
+                    if (user != null && user.getEmail() != null) {
+                        SimpleMailMessage mailMessage = new SimpleMailMessage();
+                        mailMessage.setTo(user.getEmail());
+                        mailMessage.setSubject("SecureVault Notification: " + title);
+                        mailMessage.setText(message + "\n\nBest Regards,\nSecureVault Team");
+                        mailSender.send(mailMessage);
+                        System.out.println("Email successfully sent to: " + user.getEmail());
+                    } else {
+                        System.err.println("Failed to send email: User or email not found.");
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to send email. Check SMTP configuration. Error: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                System.err.println("Failed to send email. Check SMTP configuration. Error: " + e.getMessage());
+            } else {
+                System.out.println("[EMAIL SKIPPED] SMTP not configured — set MAIL_USERNAME and MAIL_PASSWORD env vars to enable email delivery.");
             }
         } else if (channel == Channel.PUSH) {
             System.out.println("=======================================================================");

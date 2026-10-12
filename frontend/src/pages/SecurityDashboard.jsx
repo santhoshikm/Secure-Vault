@@ -4,11 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import '../App.css';
 import './SecurityDashboard.css';
 
-const API = 'http://localhost:8080';
-const authHeaders = (token) => ({
-  Authorization: `Bearer ${token}`,
-  'Content-Type': 'application/json',
-});
+import API_BASE_URL, { authHeaders } from '../utils/api';
+
+const API = API_BASE_URL;
 
 /* ── helpers ─────────────────────────────────────────────────────────────── */
 const fmtDateTime = (d) =>

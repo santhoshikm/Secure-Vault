@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { LockIcon, ShieldIcon } from "../icons";
+import API_BASE_URL from "../utils/api";
 import "../App.css";
 
 export default function ResetPassword() {
@@ -31,7 +32,7 @@ export default function ResetPassword() {
       setError("");
       setMessage("");
 
-      const response = await fetch("http://localhost:8080/api/auth/reset-password", {
+      const response = await fetch(`${API_BASE_URL}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),

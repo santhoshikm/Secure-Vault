@@ -1,3 +1,8 @@
-const API_BASE_URL = import.meta.env.PROD ? "" : "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "" : "http://localhost:8080");
 
-export default API_BASE_URL;
+export const authHeaders = (token) => ({
+  Authorization: `Bearer ${token}`,
+  "Content-Type": "application/json",
+});
+
+export default API_BASE_URL;
