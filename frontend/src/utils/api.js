@@ -5,4 +5,4 @@ export const authHeaders = (token) => ({
   "Content-Type": "application/json",
 });
 
-export default API_BASE_URL;
+export default API_BASE_URL;
